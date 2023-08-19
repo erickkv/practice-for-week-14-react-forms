@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 function ContactUs() {
   const [name, setName] = useState("");
@@ -6,14 +6,34 @@ function ContactUs() {
   const [phone, setPhone] = useState("");
   const [comments, setComments] = useState("");
   const [phoneType, setPhoneType] = useState("");
+  const [validationErrors, setValidationErrors] = useState([]);
+  const [hasSubmitted, setHasSubmitted] = useState(false);
+
+  useEffect(() => {
+    const errors = [];
+    if (name.length <= 0) {
+      errors.push("Please enter your Name");
+    }
+    if (!email.includes("@")) {
+      errors.push("Please provide a valid Email");
+    }
+    setValidationErrors(errors);
+  }, [name, email]);
 
   const onSubmit = (e) => {
     e.preventDefault();
+
+    setHasSubmitted(true);
+    if (validationErrors.length > 0) {
+      return alert("Cannot Submit");
+    }
+
     const contactUsInformation = {
       name,
       email,
       phone,
       phoneType,
+      comments,
       submittedOn: new Date()
     };
 
@@ -22,11 +42,24 @@ function ContactUs() {
     setEmail("");
     setPhone("");
     setPhoneType("");
+    setComments("");
+    setValidationErrors([]);
+    setHasSubmitted(false);
   };
 
   return (
     <div>
       <h2>Contact Us</h2>
+      {hasSubmitted && validationErrors.length > 0 && (
+        <div>
+          The following errors were found:
+          <ul>
+            {validationErrors.map((error) => (
+              <li key={error}>{error}</li>
+            ))}
+          </ul>
+        </div>
+      )}
       <form onSubmit={onSubmit}>
         <div>
           <label htmlFor="name">Name:</label>
